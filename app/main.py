@@ -21,8 +21,11 @@ class DNSHeader:
         # Convert the header fields into bytes
         return struct.pack('>HBBHHHHHHHH',
                            self.id,
-                           (self.qr << 7) | (self.opcode << 3) | (self.aa << 2) |
-                           (self.tc << 1) | (self.rd),    # Flags
+                           (self.qr << 7),
+                           (self.opcode << 3),
+                           (self.aa << 2),
+                           (self.tc << 1),
+                           (self.rd),    # Flags
                            0,                               # Unused
                            self.qdcount,
                            self.ancount,
