@@ -1,9 +1,11 @@
 import socket
 import struct
+from question import DNSQuestion, IDNSQuestion, DNSQuestionType, DNSClass
+from answer import DNSAnswer, DNSRecordType
 
 class DNSHeader:
     def __init__(self, packet_id):
-        self.id = 1234                     # Packet Identifier (from query)
+        self.id = 1234                          # Packet Identifier (from query)
         self.qr = 1                             # Query/Response Indicator (1 for response)
         self.opcode = 0                         # Operation Code (standard query)
         self.aa = 1                             # Authoritative Answer
@@ -13,7 +15,7 @@ class DNSHeader:
         self.z = 0                              # Reserved
         self.rcode = 0                          # Response Code (no error)
         self.qdcount = 1                        # Question Count (1 question)
-        self.ancount = 0                        # Answer Record Count
+        self.ancount = 1                        # Answer Record Count
         self.nscount = 0                        # Authority Record Count
         self.arcount = 0                        # Additional Record Count
 
@@ -30,16 +32,6 @@ class DNSHeader:
                            self.ancount,
                            self.nscount,
                            self.arcount)
-
-def encode_domain_name(domain):
-    # Encode domain name according to DNS specifications
-    labels = domain.split('.')
-    encoded = b''
-    for label in labels:
-        length = len(label)
-        encoded += struct.pack('B', length) + label.encode()
-    encoded += b'\x00'  # Null byte to terminate the domain name
-    return encoded
 
 def main():
     print("Logs from your program will appear here!")
@@ -63,16 +55,23 @@ def main():
             header = DNSHeader(query_id)
             response = header.to_bytes()
 
-            # Encode the domain name for the question section
+            # Create DNSQuestion instance
             domain_name = "codecrafters.io"
-            encoded_name = encode_domain_name(domain_name)
+            question = IDNSQuestion(name=domain_name, qtype=DNSQuestionType.A, qclass=DNSClass.IN)
+            question_bytes = DNSQuestion.write(question)
 
-            print(f"Encoded domain name: {encoded_name}")
+            # Create DNSAnswer instance
+            answer = DNSAnswer(name=domain_name, rtype=DNSRecordType.A.value, rclass=DNSClass.IN.value, ttl=60, rdata="8.8.8.8")
+            answer_bytes = answer.to_bytes()
+
+            print(f"Question bytes: {question_bytes}")
+            print(f"Answer bytes: {answer_bytes}")
 
             # Append the question section
-            question_type = struct.pack('>H', 1)  # Type A (1)
-            question_class = struct.pack('>H', 1) # Class IN (1)
-            response += encoded_name + question_type + question_class
+            response += question_bytes
+
+            # Append the answer section
+            response += answer_bytes
 
             # Send response back to the source
             udp_socket.sendto(response, source)
