@@ -3,7 +3,7 @@ import struct
 
 class DNSHeader:
     def __init__(self, packet_id):
-        self.id = packet_id                     # Packet Identifier (from query)
+        self.id = 1234                     # Packet Identifier (from query)
         self.qr = 1                             # Query/Response Indicator (1 for response)
         self.opcode = 0                         # Operation Code (standard query)
         self.aa = 1                             # Authoritative Answer
@@ -52,8 +52,12 @@ def main():
             buf, source = udp_socket.recvfrom(512)
             print(f"Received packet from {source}")
 
+            print(f"Received {len(buf)} bytes")
+
             # Extract the ID from the query packet (first 2 bytes)
             query_id = struct.unpack(">H", buf[:2])[0]
+
+            print(f"Query ID: {query_id}")
 
             # Create DNS header with extracted query_id
             header = DNSHeader(query_id)
@@ -62,6 +66,8 @@ def main():
             # Encode the domain name for the question section
             domain_name = "codecrafters.io"
             encoded_name = encode_domain_name(domain_name)
+
+            print(f"Encoded domain name: {encoded_name}")
 
             # Append the question section
             question_type = struct.pack('>H', 1)  # Type A (1)
