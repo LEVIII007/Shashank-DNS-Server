@@ -67,7 +67,7 @@ def main():
             print(f"Question bytes: {question_bytes}")
             print(f"Answer bytes: {answer_bytes}")
 
-            # Append the question section
+            # Append the question sectio
             response += question_bytes
 
             # Append the answer section
