@@ -32,6 +32,17 @@ class DNSHeader:
                            self.nscount,
                            self.arcount)
 
+def encode_domain_name(domain):
+    # Encode domain name according to DNS specifications
+    labels = domain.split('.')
+    encoded = b''
+    for label in labels:
+        length = len(label)
+        encoded += struct.pack('B', length) + label.encode()
+    encoded += b'\x00'  # Null byte to terminate the domain name
+    return encoded
+
+
 def main():
     print("Logs from your program will appear here!")
 
@@ -46,6 +57,15 @@ def main():
             # Create DNS header
             header = DNSHeader()
             response = header.to_bytes()
+
+             # Encode the domain name for the question section
+            domain_name = "codecrafters.io"
+            encoded_name = encode_domain_name(domain_name)
+
+            # Append the question section
+            question_type = struct.pack('>H', 1)  # Type A (1)
+            question_class = struct.pack('>H', 1) # Class IN (1)
+            response += encoded_name + question_type + question_class
 
             # Send response back to the source
             udp_socket.sendto(response, source)
