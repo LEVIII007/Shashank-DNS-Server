@@ -1,37 +1,61 @@
-[![progress-banner](https://backend.codecrafters.io/progress/dns-server/265d120e-08aa-44f8-b1e9-d5a7d4da6b1e)](https://app.codecrafters.io/users/codecrafters-bot?r=2qF)
+# Shashank DNS Server
+_A fully python 3 implementation of a DNS server_
 
-This is a starting point for Python solutions to the
-["Build Your Own DNS server" Challenge](https://app.codecrafters.io/courses/dns-server/overview).
 
-In this challenge, you'll build a DNS server that's capable of parsing and
-creating DNS packets, responding to DNS queries, handling various record types
-and doing recursive resolve. Along the way we'll learn about the DNS protocol,
-DNS packet format, root servers, authoritative servers, forwarding servers,
-various record types (A, AAAA, CNAME, etc) and more.
+## Notes
++ At the moment the only records supported are IPV4 A records (however the main codebase is there to support others)
++ TTL will be set to 0 as not to corrupt cache with bad records, in the future this can be changed
++ Sometimes must run as root/admin to bind port 53 (any port < 1000)
++ This "server" only supports UDP based DNS requests (ATM), and will not make actual DNS queries to retrieve actual results: the intention of this "server" is to send fake addresses back to clients that send requests to it based on the contents of the given `hosts.txt` file
 
-**Note**: If you're viewing this repo on GitHub, head over to
-[codecrafters.io](https://codecrafters.io) to try the challenge.
+## Hosts
+You can setup hosts in a `hosts.txt` file in the format
 
-# Passing the first stage
+`DOMAIN IP`
 
-The entry point for your `your_program.sh` implementation is in `app/main.py`.
-Study and uncomment the relevant code, and push your changes to pass the first
-stage:
-
-```sh
-git commit -am "pass 1st stage" # any msg
-git push origin master
+_Example_
+```
+test.com 127.0.0.1
+google.com 216.58.212.110
 ```
 
-Time to move on to the next stage!
+## Run
+**Must** use python 3
+```bash
+python main.py
+```
+```
+usage: main.py [-h] [-f HOSTS] [-a ADDRESS] [-p PORT] [-d]
 
-# Stage 2 & beyond
+A python DNS server
 
-Note: This section is for stages 2 and beyond.
+optional arguments:
+  -h, --help            show this help message and exit
+  -f HOSTS, --hosts HOSTS
+                        The file to load hosts from
+  -a ADDRESS, --address ADDRESS
+                        Address to bind
+  -p PORT, --port PORT  Port to bind
+  -d, --debug           Print debug messages
+```
 
-1. Ensure you have `python (3.11)` installed locally
-1. Run `./your_program.sh` to run your program, which is implemented in
-   `app/main.py`.
-1. Commit your changes and run `git push origin master` to submit your solution
-   to CodeCrafters. Test output will be streamed to your terminal.
-# Shashank-DNS-Server
+## Testing 
+
+### _Windows_
+
+1. Open `nslookup`
+2. Enter `SET debug`
+3. Optional enter `SET TYPE=ALL`
+4. Enter `server 127.0.0.1` or whatever IP you bound to (must be using port 53)
+5. Query a domain name you have in your `hosts.txt` configuration
+
+### _Linux_
+
+```bash
+drill @127.0.0.1 domain
+```
+
+See the [drill manpage](https://linux.die.net/man/1/drill) for more info
+
+## License
+[MIT license](LICENSE)
